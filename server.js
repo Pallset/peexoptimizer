@@ -220,6 +220,10 @@ app.post('/api/like', (req, res) => {
   });
 });
 
+app.post('/human-check', (req, res) => {
+    res.json({ success: true });
+});
+
 // Favorite
 app.post('/api/favorite', (req, res) => {
   const { video_id, action, videoData } = req.body;
