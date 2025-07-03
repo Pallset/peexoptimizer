@@ -224,6 +224,16 @@ app.post('/human-check', (req, res) => {
     res.json({ success: true });
 });
 
+// blokir langsung akses ke /script.js
+app.get('/script.js', (req, res) => {
+  res.redirect('/');
+});
+
+// blokir langsung akses ke /style.css
+app.get('/style.css', (req, res) => {
+  res.redirect('/');
+});
+
 // Favorite
 app.post('/api/favorite', (req, res) => {
   const { video_id, action, videoData } = req.body;
