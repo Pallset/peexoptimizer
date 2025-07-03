@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <source src="${video.play}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
-                        <img src="/assets/peex_logo.png" alt="PeeX Authority" class="peex-logo-overlay">
+                        <img src="https://files.catbox.moe/tdjjpq.png" alt="PeeX Authority" class="peex-logo-overlay">
                         <div class="watermark-overlay">https://asupan.peexs.my.id/</div>
                     </div>
                     <div class="video-description">
