@@ -1,0 +1,24 @@
+[
+  {
+    "timestamp": "2025-07-03T06:41:55.372Z",
+    "videoId": "7521370170770656517",
+    "command": "Lawak jir"
+  },
+  {
+    "timestamp": "2025-07-03T06:42:02.716Z",
+    "videoId": "7521370170770656517",
+    "command": "Ampas"
+  },
+  {
+    "id": 1751527509511,
+    "username": "Siti",
+    "command": "Ampas",
+    "timestamp": "2025-07-03T07:25:09.512Z"
+  },
+  {
+    "id": 1751527511309,
+    "username": "Budi",
+    "command": "Ampas",
+    "timestamp": "2025-07-03T07:25:11.309Z"
+  }
+]

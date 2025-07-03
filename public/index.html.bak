@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asupan Random - By PeeX</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/assets/peex_logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="loading-container" class="active">
+        <img src="/assets/peex_logo.png" alt="PeeX Logo" class="loading-logo">
+        <div class="loading-text">Security By PeeX</div>
+        <div class="spinner"></div>
+        <div id="human-check-box" style="display: none;">
+            <label for="human-checkbox">
+                <input type="checkbox" id="human-checkbox"> I am human
+            </label>
+            <button id="continue-button" disabled>Continue</button>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <header>
+            <div class="header-left">
+                <img src="/assets/peex_logo.png" alt="PeeX Logo" class="header-logo">
+                <h1>Asupan Random</h1>
+            </div>
+            <nav>
+                <button id="show-home-btn" class="nav-button">Home</button>
+                <button id="show-favorites-btn" class="nav-button">Favorites</button>
+                <button id="show-commands-btn" class="nav-button">Commands</button>
+            </nav>
+        </header>
+
+        <div class="container">
+            <div class="info-box card">
+                <h3>Selamat Datang di Asupan Random!</h3>
+                <p>Di sini kamu bisa mendapatkan berbagai video random yang menghibur.</p>
+                <p>Jangan lupa join grup Telegram kami untuk update terbaru dan asupan lainnya: <a href="https://t.me/lo_poo" target="_blank">t.me/lo_poo</a></p>
+                <p>Nikmati kontennya dan jangan ragu untuk memberikan command!</p>
+            </div>
+
+            <main id="video-container">
+                </main>
+
+            <div id="loading-more-videos">
+                Loading more videos...
+            </div>
+        </div>
+    </div>
+
+    <div id="command-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Commands for This Video</h2>
+            <div id="commands-list"></div>
+            <div class="command-input-group">
+                <input type="text" id="command-input" placeholder="Type your command...">
+                <button id="send-command-btn">Send Command</button>
+            </div>
+            <div id="command-reply"></div>
+        </div>
+    </div>
+
+    <div id="favorites-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Your Favorites</h2>
+            <div id="favorites-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
