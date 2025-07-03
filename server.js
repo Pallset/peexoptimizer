@@ -10,7 +10,13 @@ const FileStore = require('session-file-store')(session);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Path ke data
+// Pastikan folder sessions ada
+const sessionsDir = path.join(__dirname, 'sessions');
+if (!fs.existsSync(sessionsDir)) {
+  fs.mkdirSync(sessionsDir, { recursive: true });
+}
+
+// File JSON yang wajib ada
 const keywordsPath = path.join(__dirname, 'keywords.json');
 const commandsDataPath = path.join(__dirname, 'commandsData.json');
 const videosCachePath = path.join(__dirname, 'videos_cache.json');
@@ -39,7 +45,7 @@ const writeJsonFile = (filePath, data) => {
   }
 };
 
-// load data
+// load data awal
 let keywords = readJsonFile(keywordsPath, []);
 let commandsData = readJsonFile(commandsDataPath, {});
 let videosCache = readJsonFile(videosCachePath, {});
@@ -48,13 +54,13 @@ let videosCache = readJsonFile(videosCachePath, {});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// session
+// Session
 app.use(session({
   store: new FileStore({
-    path: './sessions',
+    path: sessionsDir,
     ttl: 86400 * 7,
     retries: 5,
-    logFn: function() {}
+    logFn: function() {} // matiin log bawaan
   }),
   secret: 'secret-key-super-rahasia-peex-2025-lebih-kuat',
   resave: false,
@@ -62,7 +68,7 @@ app.use(session({
   cookie: { secure: false, maxAge: 86400 * 7 * 1000 }
 }));
 
-// static public
+// Static public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Home
@@ -84,7 +90,7 @@ app.get('/api/videos', async (req, res) => {
     const specificVideoId = req.query.id;
     let videos = [];
 
-    if (!keywords.length) {
+    if (!keywords || keywords.length === 0) {
       return res.status(500).json({ error: 'Keywords not found.' });
     }
 
@@ -104,7 +110,7 @@ app.get('/api/videos', async (req, res) => {
       }
     }
 
-    if (!videos.length) {
+    if (videos.length === 0) {
       const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
       const apiUrl = `https://www.tikwm.com/api/feed/search?keywords=${encodeURIComponent(randomKeyword)}`;
       const { data } = await axios.get(apiUrl);
@@ -126,7 +132,7 @@ app.get('/api/videos', async (req, res) => {
       likes: req.session.likes
     });
   } catch (err) {
-    console.error('Error in /api/videos:', err);
+    console.error('Error in /api/videos:', err.message);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -150,6 +156,7 @@ app.get('/download-video', async (req, res) => {
         'Referer': 'https://www.tikwm.com/'
       }
     });
+
     res.setHeader('Content-Type', response.headers['content-type'] || 'video/mp4');
     res.setHeader('Content-Disposition', `attachment; filename="${videoTitle}.mp4"`);
     if (response.headers['content-length']) {
@@ -157,7 +164,7 @@ app.get('/download-video', async (req, res) => {
     }
     response.data.pipe(res);
   } catch (err) {
-    console.error(`Error download:`, err);
+    console.error(`Error download proxy:`, err.message);
     res.status(500).send('Failed to proxy download.');
   }
 });
@@ -168,15 +175,19 @@ app.post('/api/command', (req, res) => {
   if (!video_id || !username || !command) {
     return res.status(400).json({ error: 'Video ID, username, and command are required.' });
   }
+
   if (!commandsData[video_id]) commandsData[video_id] = [];
+
   const newCommand = {
     id: Date.now(),
     username,
     command,
     timestamp: new Date().toISOString()
   };
+
   commandsData[video_id].push(newCommand);
   writeJsonFile(commandsDataPath, commandsData);
+
   res.status(201).json({ message: 'Command saved!', command: newCommand });
 });
 
@@ -186,13 +197,15 @@ app.get('/api/commands/:video_id', (req, res) => {
   res.json(commandsData[videoId] || []);
 });
 
-// Like/unlike
+// Like / unlike
 app.post('/api/like', (req, res) => {
   const { video_id, action } = req.body;
   if (!video_id || !action) {
     return res.status(400).json({ error: 'Video ID and action are required.' });
   }
+
   if (!req.session.likes) req.session.likes = {};
+
   if (action === 'like') {
     req.session.likes[video_id] = true;
   } else if (action === 'unlike') {
@@ -200,6 +213,7 @@ app.post('/api/like', (req, res) => {
   } else {
     return res.status(400).json({ error: 'Invalid action.' });
   }
+
   req.session.save(err => {
     if (err) console.error(err);
     res.json({ success: true, likes: req.session.likes });
@@ -212,6 +226,7 @@ app.post('/api/favorite', (req, res) => {
   if (!video_id || !action) {
     return res.status(400).json({ error: 'Video ID and action are required.' });
   }
+
   if (!req.session.favorites) req.session.favorites = [];
 
   if (action === 'add') {
@@ -230,6 +245,7 @@ app.post('/api/favorite', (req, res) => {
   } else {
     return res.status(400).json({ error: 'Invalid action.' });
   }
+
   req.session.save(err => {
     if (err) console.error(err);
     res.json({ success: true, favorites: req.session.favorites });
@@ -238,5 +254,5 @@ app.post('/api/favorite', (req, res) => {
 
 // Start
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
