@@ -1,4 +1,7 @@
-// server.js
+// ------------- Asupan - PeeX ------------- \\
+// ------------- Simply Express.js Site ------------- \\
+// ------------- Credit On @LO_POO [ TELEGRAM ] ------------- \\
+
 
 const express = require('express');
 const path = require('path');
@@ -7,22 +10,15 @@ const axios = require('axios');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const FileStore = require('session-file-store')(session);
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Pastikan folder sessions ada
 const sessionsDir = path.join(__dirname, 'sessions');
 if (!fs.existsSync(sessionsDir)) {
   fs.mkdirSync(sessionsDir, { recursive: true });
 }
-
-// File JSON yang wajib ada
 const keywordsPath = path.join(__dirname, 'keywords.json');
 const commandsDataPath = path.join(__dirname, 'commandsData.json');
 const videosCachePath = path.join(__dirname, 'videos_cache.json');
-
-// Helper baca file JSON
 const readJsonFile = (filePath, defaultValue = []) => {
   try {
     if (!fs.existsSync(filePath)) {
@@ -36,8 +32,6 @@ const readJsonFile = (filePath, defaultValue = []) => {
     return defaultValue;
   }
 };
-
-// Helper tulis file JSON
 const writeJsonFile = (filePath, data) => {
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
@@ -45,17 +39,13 @@ const writeJsonFile = (filePath, data) => {
     console.error(`Error writing ${filePath}:`, err);
   }
 };
-
-// load data awal
 let keywords = readJsonFile(keywordsPath, []);
 let commandsData = readJsonFile(commandsDataPath, {});
 let videosCache = readJsonFile(videosCachePath, {});
 
-// Middleware
+// =====> USE <===== \\
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Session
 app.use(session({
   store: new FileStore({
     path: sessionsDir,
@@ -68,16 +58,13 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false, maxAge: 86400 * 7 * 1000 }
 }));
-
-// Static public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Home
+
+ // =====> GET <===== \\
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-// video page
 app.get('/v', (req, res) => {
   const videoId = req.query.id;
   if (!videoId) {
@@ -90,8 +77,6 @@ app.get('/v', (req, res) => {
 
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-// API ambil video
 app.get('/api/videos', async (req, res) => {
   try {
     const specificVideoId = req.query.id;
@@ -143,8 +128,6 @@ app.get('/api/videos', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// Download proxy
 app.get('/download-video', async (req, res) => {
   const videoUrl = req.query.url;
   const videoTitle = req.query.title || 'video';
@@ -175,8 +158,19 @@ app.get('/download-video', async (req, res) => {
     res.status(500).send('Failed to proxy download.');
   }
 });
+app.get('/api/commands/:video_id', (req, res) => {
+  const videoId = req.params.video_id;
+  res.json(commandsData[videoId] || []);
+});
+app.get('/script.js', (req, res) => {
+  res.redirect('/');
+});
+app.get('/style.css', (req, res) => {
+  res.redirect('/');
+});
 
-// Simpan command
+
+// =====> POST <===== \\
 app.post('/api/command', (req, res) => {
   const { video_id, username, command } = req.body;
   if (!video_id || !username || !command) {
@@ -197,14 +191,6 @@ app.post('/api/command', (req, res) => {
 
   res.status(201).json({ message: 'Command saved!', command: newCommand });
 });
-
-// Ambil command
-app.get('/api/commands/:video_id', (req, res) => {
-  const videoId = req.params.video_id;
-  res.json(commandsData[videoId] || []);
-});
-
-// Like / unlike
 app.post('/api/like', (req, res) => {
   const { video_id, action } = req.body;
   if (!video_id || !action) {
@@ -226,22 +212,9 @@ app.post('/api/like', (req, res) => {
     res.json({ success: true, likes: req.session.likes });
   });
 });
-
 app.post('/human-check', (req, res) => {
   res.json({ success: true });
 });
-
-// blokir langsung akses ke /script.js
-app.get('/script.js', (req, res) => {
-  res.redirect('/');
-});
-
-// blokir langsung akses ke /style.css
-app.get('/style.css', (req, res) => {
-  res.redirect('/');
-});
-
-// Favorite
 app.post('/api/favorite', (req, res) => {
   const { video_id, action, videoData } = req.body;
   if (!video_id || !action) {
@@ -273,7 +246,6 @@ app.post('/api/favorite', (req, res) => {
   });
 });
 
-// Start
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
