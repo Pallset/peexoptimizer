@@ -1,4 +1,5 @@
 // server.js
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -60,7 +61,7 @@ app.use(session({
     path: sessionsDir,
     ttl: 86400 * 7,
     retries: 5,
-    logFn: function() {} // matiin log bawaan
+    logFn: function() {}
   }),
   secret: 'secret-key-super-rahasia-peex-2025-lebih-kuat',
   resave: false,
@@ -76,11 +77,17 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// video halaman
+// video page
 app.get('/v', (req, res) => {
-  if (!req.query.id) {
+  const videoId = req.query.id;
+  if (!videoId) {
     return res.redirect('/');
   }
+
+  if (!videosCache[videoId]) {
+    return res.status(404).send(`<h1>404 Video not found</h1><p>Video ID ${videoId} tidak ditemukan di cache.</p>`);
+  }
+
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -221,7 +228,7 @@ app.post('/api/like', (req, res) => {
 });
 
 app.post('/human-check', (req, res) => {
-    res.json({ success: true });
+  res.json({ success: true });
 });
 
 // blokir langsung akses ke /script.js
